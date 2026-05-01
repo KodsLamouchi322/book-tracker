@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-tracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: book-tracker
+  template:
+    metadata:
+      labels:
+        app: book-tracker
+    spec:
+      containers:
+      - name: book-tracker
+        image: kodslamouchi/book-tracker:latest
+        ports:
+        - containerPort: 3000
