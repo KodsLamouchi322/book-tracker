@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Tracker</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }
+    h1 { color: #333; }
+    .form-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    button { padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button.del { background: #e53935; }
+    .book { background: white; padding: 12px 16px; margin: 8px 0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .status { font-size: 12px; padding: 3px 8px; border-radius: 10px; background: #e8f5e9; color: #388e3c; }
+    .status.to-read { background: #fff3e0; color: #f57c00; }
+  </style>
+</head>
+<body>
+  <h1>📚 Book Tracker</h1>
+  <div class="form-row">
+    <input id="title" placeholder="Titre du livre" />
+    <input id="author" placeholder="Auteur" />
+    <button onclick="addBook()">Ajouter</button>
+  </div>
+  <div id="list"></div>
+  <script>
+    const API = '/api/books';
+    async function load() {
+      const res = await fetch(API);
+      const books = await res.json();
+      document.getElementById('list').innerHTML = books.map(b => `
+        <div class="book">
+          <span><strong>${b.title}</strong> — ${b.author}</span>
+          <span>
+            <span class="status ${b.status}">${b.status}</span>
+            <button class="del" onclick="del(${b.id})">✕</button>
+          </span>
+        </div>`).join('');
+    }
+    async function addBook() {
+      const title = document.getElementById('title').value;
+      const author = document.getElementById('author').value;
+      if (!title || !author) return alert('Remplis les deux champs !');
+      await fetch(API, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({title, author}) });
+      document.getElementById('title').value = '';
+      document.getElementById('author').value = '';
+      load();
+    }
+    async function del(id) {
+      await fetch(API + '/' + id, { method: 'DELETE' });
+      load();
+    }
+    load();
+  </script>
+</body>
+</html>
